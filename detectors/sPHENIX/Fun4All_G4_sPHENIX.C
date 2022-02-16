@@ -24,6 +24,8 @@
 #include <fun4all/Fun4AllDstOutputManager.h>
 #include <fun4all/Fun4AllOutputManager.h>
 #include <fun4all/Fun4AllServer.h>
+#include <phgeom/PHGeomUtility.h>
+#include <TGeoManager.h>
 
 #include <phool/PHRandomSeed.h>
 #include <phool/recoConsts.h>
@@ -623,6 +625,12 @@ int Fun4All_G4_sPHENIX(
   se->End();
   
   se->PrintTimer();
+
+  cout <<"======================================================="<<endl;
+  cout <<"TGeoManager overlap checks"<<endl;
+  cout <<"======================================================="<<endl;
+  PHGeomUtility::GetTGeoManager( se->topNode()) -> CheckOverlaps();
+  PHGeomUtility::GetTGeoManager( se->topNode()) -> PrintOverlaps();
   
   std::cout << "All done" << std::endl;
   delete se;
