@@ -381,12 +381,8 @@ int Fun4All_G4_sPHENIX(
 
   Enable::GLOBAL_RECO = true;
   //Enable::GLOBAL_FASTSIM = true;
-<<<<<<< HEAD
-  Enable::KFPARTICLE = true;
-=======
 
-  //Enable::KFPARTICLE = true;
->>>>>>> QA-tracking-low-occupancy
+  Enable::KFPARTICLE = true;
   //Enable::KFPARTICLE_VERBOSITY = 1;
   Enable::KFPARTICLE_TRUTH_MATCH = true;
   //Enable::KFPARTICLE_SAVE_NTUPLE = true;
