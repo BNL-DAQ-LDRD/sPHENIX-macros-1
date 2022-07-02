@@ -65,16 +65,6 @@ int Fun4All_G4_sPHENIX(
   rc->set_IntFlag("RANDOMSEED", TString(outputFile).Hash());
 
   //===============
-  // conditions DB flags
-  //===============
-  // tag
-  rc->set_StringFlag("XPLOAD_TAG","sPHENIX_ExampleGT_1");
-  // database config
-  rc->set_StringFlag("XPLOAD_CONFIG","sPHENIX_cdb");
-  // 64 bit timestamp
-  rc->set_uint64Flag("TIMESTAMP",12345678912345);
-
-  //===============
   // Input options
   //===============
   // verbosity setting (applies to all input managers)
@@ -413,6 +403,17 @@ int Fun4All_G4_sPHENIX(
   // run user provided code (from local G4_User.C)
   //Enable::USER = true;
 
+  //===============
+  // conditions DB flags
+  //===============
+  //Enable::XPLOAD = true;
+  // tag
+  rc->set_StringFlag("XPLOAD_TAG",XPLOAD::tag);
+  // database config
+  rc->set_StringFlag("XPLOAD_CONFIG",XPLOAD::config);
+  // 64 bit timestamp
+  rc->set_uint64Flag("TIMESTAMP",XPLOAD::timestamp);
+
   //---------------
   // World Settings
   //---------------
@@ -641,7 +642,8 @@ int Fun4All_G4_sPHENIX(
     return 0;
   }
   // if we run the particle generator and use 0 it'll run forever
-  if (nEvents == 0 && !Input::HEPMC && !Input::READHITS)
+  // for embedding it runs forever if the repeat flag is set
+  if (nEvents == 0 && !Input::HEPMC && !Input::READHITS && INPUTEMBED::REPEAT)
   {
     cout << "using 0 for number of events is a bad idea when using particle generators" << endl;
     cout << "it will run forever, so I just return without running anything" << endl;
