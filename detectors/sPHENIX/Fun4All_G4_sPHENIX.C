@@ -28,13 +28,16 @@
 #include <phool/PHRandomSeed.h>
 #include <phool/recoConsts.h>
 
+#include <tpcmldatainterface/TPCMLDataInterface.h>
+
 R__LOAD_LIBRARY(libfun4all.so)
+R__LOAD_LIBRARY(libtpcmldatainterface.so)
 
 // For HepMC Hijing
 // try inputFile = /sphenix/sim/sim01/sphnxpro/sHijing_HepMC/sHijing_0-12fm.dat
 
 int Fun4All_G4_sPHENIX(
-    const int nEvents = 1,
+    const int nEvents = 10,
     const string &inputFile = "https://www.phenix.bnl.gov/WWW/publish/phnxbld/sPHENIX/files/sPHENIX_G4Hits_sHijing_9-11fm_00000_00010.root",
     const string &outputFile = "G4sPHENIX.root",
     const string &embed_input_file = "https://www.phenix.bnl.gov/WWW/publish/phnxbld/sPHENIX/files/sPHENIX_G4Hits_sHijing_9-11fm_00000_00010.root",
@@ -245,7 +248,7 @@ int Fun4All_G4_sPHENIX(
   //======================
 
   // QA, main switch
-  Enable::QA = true;
+  Enable::QA = false;
 
   // Global options (enabled for all enables subsystems - if implemented)
   //  Enable::ABSORBER = true;
@@ -292,16 +295,16 @@ int Fun4All_G4_sPHENIX(
   //  into the tracking, cannot run together with CEMC
   //  Enable::CEMCALBEDO = true;
 
-  Enable::CEMC = true;
-  Enable::CEMC_ABSORBER = true;
+  Enable::CEMC = false;
+  Enable::CEMC_ABSORBER = false;
   Enable::CEMC_CELL = Enable::CEMC && true;
   Enable::CEMC_TOWER = Enable::CEMC_CELL && true;
   Enable::CEMC_CLUSTER = Enable::CEMC_TOWER && true;
   Enable::CEMC_EVAL = Enable::CEMC_CLUSTER && true;
   Enable::CEMC_QA = Enable::CEMC_CLUSTER && Enable::QA && true;
 
-  Enable::HCALIN = true;
-  Enable::HCALIN_ABSORBER = true;
+  Enable::HCALIN = false;
+  Enable::HCALIN_ABSORBER = false;
   Enable::HCALIN_CELL = Enable::HCALIN && true;
   Enable::HCALIN_TOWER = Enable::HCALIN_CELL && true;
   Enable::HCALIN_CLUSTER = Enable::HCALIN_TOWER && true;
@@ -311,20 +314,20 @@ int Fun4All_G4_sPHENIX(
   Enable::MAGNET = true;
   Enable::MAGNET_ABSORBER = true;
 
-  Enable::HCALOUT = true;
-  Enable::HCALOUT_ABSORBER = true;
+  Enable::HCALOUT = false;
+  Enable::HCALOUT_ABSORBER = false;
   Enable::HCALOUT_CELL = Enable::HCALOUT && true;
   Enable::HCALOUT_TOWER = Enable::HCALOUT_CELL && true;
   Enable::HCALOUT_CLUSTER = Enable::HCALOUT_TOWER && true;
   Enable::HCALOUT_EVAL = Enable::HCALOUT_CLUSTER && true;
   Enable::HCALOUT_QA = Enable::HCALOUT_CLUSTER && Enable::QA && true;
 
-  Enable::EPD = true;
+  Enable::EPD = false;
 
-  Enable::BEAMLINE = true;
+  Enable::BEAMLINE = false;
 //  Enable::BEAMLINE_ABSORBER = true;  // makes the beam line magnets sensitive volumes
 //  Enable::BEAMLINE_BLACKHOLE = true; // turns the beamline magnets into black holes
-  Enable::ZDC = true;
+  Enable::ZDC = false;
 //  Enable::ZDC_ABSORBER = true;
 //  Enable::ZDC_SUPPORT = true;
   Enable::ZDC_TOWER = Enable::ZDC && true;
@@ -332,9 +335,9 @@ int Fun4All_G4_sPHENIX(
 
   //! forward flux return plug door. Out of acceptance and off by default.
   //Enable::PLUGDOOR = true;
-  Enable::PLUGDOOR_ABSORBER = true;
+  Enable::PLUGDOOR_ABSORBER = false;
 
-  Enable::GLOBAL_RECO = true;
+  Enable::GLOBAL_RECO = false;
   //Enable::GLOBAL_FASTSIM = true;
 
   //Enable::KFPARTICLE = true;
@@ -344,7 +347,7 @@ int Fun4All_G4_sPHENIX(
 
   Enable::CALOTRIGGER = Enable::CEMC_TOWER && Enable::HCALIN_TOWER && Enable::HCALOUT_TOWER && false;
 
-  Enable::JETS = true;
+  Enable::JETS = false;
   Enable::JETS_EVAL = Enable::JETS && true;
   Enable::JETS_QA = Enable::JETS && Enable::QA && true;
 
@@ -366,7 +369,7 @@ int Fun4All_G4_sPHENIX(
   //BlackHoleGeometry::visible = true;
 
   // run user provided code (from local G4_User.C)
-  //Enable::USER = true;
+  Enable::USER = true;
 
   //===============
   // conditions DB flags
@@ -534,6 +537,11 @@ int Fun4All_G4_sPHENIX(
   if (Enable::DSTREADER) G4DSTreader(outputroot + "_DSTReader.root");
 
   if (Enable::USER) UserAnalysisInit();
+
+  TPCMLDataInterface* tpcDaqEmu = new TPCMLDataInterface(
+        G4MVTX::n_maps_layer + G4INTT::n_intt_layer, G4MVTX::n_maps_layer + G4INTT::n_intt_layer + G4TPC::n_gas_layer - 1);
+  tpcDaqEmu->setVertexZAcceptanceCut(200); // this use max acceptance in TPC data
+  se->registerSubsystem(tpcDaqEmu);
 
   //======================
   // Run KFParticle on evt
